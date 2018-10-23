@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+</head>
+
+<body>
+    <style>
+        .stc-col {
+margin: 20px
+      }
+     
+       
+                 </style>
+    <!-- <div class="container"> -->
+        <!-- <div id="cols-view"></div> -->
+        <form style="float:right; margin: 10px" id="user-form">
+            <label for="user-input"></label>
+            <input type="text" placeholder="Search" id="user-input">
+            <br>
+            <div class=invalid></div>
+            <input style="margin: 10px" id="add" type="submit" value="Search">
+        </form>
+        <!-- <div id="buttons-view"></div> -->
+        <div class="row">
+            <div class="col-sm-3">
+                <div id=stock>
+                <div id="change"></div></div>
+            </div>
+            
+        </div>
+
+    <!-- </div> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+       
+        $(document).ready(function () {
+
+          
+
+            $("#add").on("click", function (event) {
+                event.preventDefault();
+                var up = $("#user-input").val().trim().toUpperCase();
+
+                $("#user-input").val("");
+                if (up === "") { $(".invalid").html("Invalid Text") }
+
+                else {
+                    function collect() {
+                
+                    var queryURL = "https://api.iextrading.com/1.0/stock/" + up + "/batch?types=quote,news,chart&range=1m&last=10"
+                   
+                    $.ajax({
+                        url: queryURL,
+                        method: "GET",
+                    }).then(function (response) {
+                        console.log(response);
+                        $("#stock").append("<br><br>" + response.quote.symbol + "<br>")
+                        $("#stock").append("<br>" + response.quote.companyName + "<br>")
+
+                        $("#stock").append(("Range Price difference: " + (response.quote.high - response.quote.low).toFixed(2) + "<br>")) //difference between high and low
+
+                        $("#stock").append('Percent Change = ' + ((((response.quote.open / response.quote.close) - 1) * 100).toFixed(3)) + "%" + "<br>") // percent change Day
+                        $("#stock").append('Latest Change: ' + response.quote.latestTime + "<br>") //time of last quote
+                        $("#stock").append('Current Price = ' + (response.quote.close)) // close price
+                        $("#stock").append("<br>Day's Range: " + response.quote.high.toFixed(2) + '-' + response.quote.low)
+                        $("#stock").append("<br>Day's volume: " + response.quote.latestVolume.toLocaleString(undefined,
+                            { minimumFractionDigits: 2 })
+                        ) //daily volume
+                        $("#stock").append("<br>Change Day: " + response.quote.change)
+                        var market = response.quote.marketCap
+                        var marketTest = test(market)
+                        $("#stock").append("<br>Market Cap: " + marketTest)
+                        $("#stock").append("<br>Change Week: " + (response.quote.close - response.chart[18].close).toFixed(2))
+                        $("#stock").append("<br>Change Month: " + (response.quote.close - response.chart[0].close).toFixed(2))
+                        if (response.quote.change >= 0) {
+                            $("#change").append("▲ " + response.quote.change + " &nbsp; &nbsp;").css('color', 'green')
+                            $("#change").append(((((response.quote.latestPrice / response.quote.previousClose) - 1) * 100).toFixed(3)) + "%")
+
+                        } else {
+
+                            $("#change").append("▼ " + response.quote.change + " &nbsp; &nbsp;").css('color', 'red')
+                            $("#change").append("-" + ((((response.quote.open / response.quote.close) - 1) * 100).toFixed(3)) + "%<br>")
+                        }
+                        //  for (var i = 0; i < response.chart["length"] ; i++){
+                        // $("#stock").append("<br><br>Change Week: " + response.chart[i].close)
+                        function test(labelValue) {
+                            return Math.abs(Number(labelValue)) >= 1.0e+12
+                                ? Math.abs(Number(labelValue)) / 1.0e+12 + "T"
+                                : Math.abs(Number(labelValue)) >= 1.0e+9
+                                    ? Math.abs(Number(labelValue)) / 1.0e+9 + "B"
+                                    : Math.abs(Number(labelValue)) >= 1.0e+6
+                                        ? Math.abs(Number(labelValue)) / 1.0e+6 + "M"
+                                        : Math.abs(Number(labelValue)) >= 1.0e+3
+                                            ? Math.abs(Number(labelValue)) / 1.0e+3 + "K"
+                                            : Math.abs(Number(labelValue)).toFixed(3);
+                        }
+                    })
+                }
+            }
+                // }
+                collect();
+            });
+
+
+        })
+    </script>
+</body>
+
+</html>
+<!-- if(up === st )
+{symbol.push(up);
+
+ renderCols();}
+
+ else{
+    
+   $(".invalid").html("Invalid Text");
+ }
+  -->
