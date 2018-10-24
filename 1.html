@@ -19,30 +19,47 @@ margin: 20px
        
                  </style>
     <!-- <div class="container"> -->
-        <!-- <div id="cols-view"></div> -->
-        <form style="float:right; margin: 10px" id="user-form">
+    <!-- <div id="cols-view"></div> -->
+    <div id="sidebar" style="float:right ; margin: 10px">
+        <form id="user-form">
             <label for="user-input"></label>
             <input type="text" placeholder="Search" id="user-input">
             <br>
             <div class=invalid></div>
             <input style="margin: 10px" id="add" type="submit" value="Search">
         </form>
-        <!-- <div id="buttons-view"></div> -->
-        <div class="row">
-            <div class="col-sm-3">
-                <div id=stock>
-                <div id="change"></div></div>
+        <ul>
+            <li>
+                <input type="checkbox" class="options" value="1" name="1" />Range Price difference</li>
+            <li>
+                <input type="checkbox" class="options" value="2" name="2" />Day's Range</li>
+            <li>
+                <input type="checkbox" class="options" value="3" name="3" />Market Cap</li>
+            <li>
+                <input type="checkbox" class="options" value="4" name="4" />Change Week</li>
+            <li>
+                <input type="checkbox" class="options" value="5" name="5" />Change Month</li><br>
+            <input style="margin: 10px" id="add2" type="submit" value="Add">
+            <!-- <input style="margin: 10px" id="remove" type="submit" value="Undo"> -->
+    </div>
+
+    <!-- <div id="buttons-view"></div> -->
+    <div class="row">
+        <div class="col-sm-3">
+            <div id=stock>
+                <div id="change"></div>
             </div>
-            
         </div>
+
+    </div>
 
     <!-- </div> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
-       
+
         $(document).ready(function () {
 
-          
+
 
             $("#add").on("click", function (event) {
                 event.preventDefault();
@@ -53,57 +70,93 @@ margin: 20px
 
                 else {
                     function collect() {
-                
-                    var queryURL = "https://api.iextrading.com/1.0/stock/" + up + "/batch?types=quote,news,chart&range=1m&last=10"
-                   
-                    $.ajax({
-                        url: queryURL,
-                        method: "GET",
-                    }).then(function (response) {
-                        console.log(response);
-                        $("#stock").append("<br><br>" + response.quote.symbol + "<br>")
-                        $("#stock").append("<br>" + response.quote.companyName + "<br>")
 
-                        $("#stock").append(("Range Price difference: " + (response.quote.high - response.quote.low).toFixed(2) + "<br>")) //difference between high and low
+                        var queryURL = "https://api.iextrading.com/1.0/stock/" + up + "/batch?types=quote,news,chart&range=1m&last=10"
 
-                        $("#stock").append('Percent Change = ' + ((((response.quote.open / response.quote.close) - 1) * 100).toFixed(3)) + "%" + "<br>") // percent change Day
-                        $("#stock").append('Latest Change: ' + response.quote.latestTime + "<br>") //time of last quote
-                        $("#stock").append('Current Price = ' + (response.quote.close)) // close price
-                        $("#stock").append("<br>Day's Range: " + response.quote.high.toFixed(2) + '-' + response.quote.low)
-                        $("#stock").append("<br>Day's volume: " + response.quote.latestVolume.toLocaleString(undefined,
-                            { minimumFractionDigits: 2 })
-                        ) //daily volume
-                        $("#stock").append("<br>Change Day: " + response.quote.change)
-                        var market = response.quote.marketCap
-                        var marketTest = test(market)
-                        $("#stock").append("<br>Market Cap: " + marketTest)
-                        $("#stock").append("<br>Change Week: " + (response.quote.close - response.chart[18].close).toFixed(2))
-                        $("#stock").append("<br>Change Month: " + (response.quote.close - response.chart[0].close).toFixed(2))
-                        if (response.quote.change >= 0) {
-                            $("#change").append("▲ " + response.quote.change + " &nbsp; &nbsp;").css('color', 'green')
-                            $("#change").append(((((response.quote.latestPrice / response.quote.previousClose) - 1) * 100).toFixed(3)) + "%")
+                        $.ajax({
+                            url: queryURL,
+                            method: "GET",
+                        }).then(function (response) {
+                            console.log(response);
+                            $("#stock").append("<br><br>" + response.quote.symbol + "<br>")
+                            $("#stock").append("<br>" + response.quote.companyName + "<br>")
 
-                        } else {
+                            $("#stock").append('Percent Change = ' + ((((response.quote.open / response.quote.close) - 1) * 100).toFixed(3)) + "%" + "<br>") // percent change Day
+                            $("#stock").append('Latest Change: ' + response.quote.latestTime + "<br>") //time of last quote
+                            $("#stock").append('Current Price = ' + (response.quote.close)) // close price
 
-                            $("#change").append("▼ " + response.quote.change + " &nbsp; &nbsp;").css('color', 'red')
-                            $("#change").append("-" + ((((response.quote.open / response.quote.close) - 1) * 100).toFixed(3)) + "%<br>")
-                        }
-                        //  for (var i = 0; i < response.chart["length"] ; i++){
-                        // $("#stock").append("<br><br>Change Week: " + response.chart[i].close)
-                        function test(labelValue) {
-                            return Math.abs(Number(labelValue)) >= 1.0e+12
-                                ? Math.abs(Number(labelValue)) / 1.0e+12 + "T"
-                                : Math.abs(Number(labelValue)) >= 1.0e+9
-                                    ? Math.abs(Number(labelValue)) / 1.0e+9 + "B"
-                                    : Math.abs(Number(labelValue)) >= 1.0e+6
-                                        ? Math.abs(Number(labelValue)) / 1.0e+6 + "M"
-                                        : Math.abs(Number(labelValue)) >= 1.0e+3
-                                            ? Math.abs(Number(labelValue)) / 1.0e+3 + "K"
-                                            : Math.abs(Number(labelValue)).toFixed(3);
-                        }
-                    })
+                            $("#stock").append("<br>Day's volume: " + response.quote.latestVolume.toLocaleString(undefined,
+                                { minimumFractionDigits: 2 })
+                            ) //daily volume
+                            $("#stock").append("<br>Change Day: " + response.quote.change)
+
+
+                            var market = response.quote.marketCap
+                            var marketTest = test(market)
+                            // $("#stock").append("<br>Market Cap: " + marketTest)
+                            // $("#stock").append("<br>Change Week: " + (response.quote.close - response.chart[18].close).toFixed(2))
+                            // $("#stock").append("<br>Change Month: " + (response.quote.close - response.chart[0].close).toFixed(2))
+                            $("#add2").on("click", function (event) {
+                                if ($('input[name=1]:checked').val()) {
+                                    $("#stock").append(("<br>" + "Range Price difference: " + (response.quote.high - response.quote.low).toFixed(2) )) //difference between high and low
+                                }
+                                if ($('input[name=2]:checked').val()) {
+                                    $("#stock").append("<br>Day's Range: " + response.quote.high.toFixed(2) + '-' + response.quote.low)
+                                }
+                                if ($('input[name=3]:checked').val()) {
+                                    $("#stock").append("<br>Market Cap: " + marketTest)
+                                }
+                                if ($('input[name=4]:checked').val()) {
+                                    $("#stock").append("<br>Change Week: " + (response.quote.close - response.chart[18].close).toFixed(2))
+                                }
+                                if ($('input[name=5]:checked').val()) {
+                                    $("#stock").append("<br>Change Month: " + (response.quote.close - response.chart[0].close).toFixed(2))
+                                }
+                                $('input[type=checkbox]').prop('checked',false);
+                            })
+                            // $("#remove").on("click", function (event) {
+                            //     if ($('input[name=1]:checked').val()) {
+                            //         $("#stock").hide(("<br>" + "Range Price difference: " + (response.quote.high - response.quote.low).toFixed(2) )) //difference between high and low
+                            //     }
+                            //     if ($('input[name=2]:checked').val()) {
+                            //         $("#stock").hide("<br>Day's Range: " + response.quote.high.toFixed(2) + '-' + response.quote.low)
+                            //     }
+                            //     if ($('input[name=3]:checked').val()) {
+                            //         $("#stock").hide("<br>Market Cap: " + marketTest)
+                            //     }
+                            //     if ($('input[name=4]:checked').val()) {
+                            //         $("#stock").hide("<br>Change Week: " + (response.quote.close - response.chart[18].close).toFixed(2))
+                            //     }
+                            //     if ($('input[name=5]:checked').val()) {
+                            //         $("#stock").hide("<br>Change Month: " + (response.quote.close - response.chart[0].close).toFixed(2))
+                            //     }
+                            //     $('input[type=checkbox]').prop('checked',false);
+                            // })
+                            if (response.quote.change >= 0) {
+                                $("#change").append("▲ " + response.quote.change + " &nbsp; &nbsp;").css('color', 'green')
+                                $("#change").append(((((response.quote.latestPrice / response.quote.previousClose) - 1) * 100).toFixed(3)) + "%")
+
+                            } else {
+
+                                $("#change").append("▼ " + response.quote.change + " &nbsp; &nbsp;").css('color', 'red')
+                                $("#change").append("-" + ((((response.quote.open / response.quote.close) - 1) * 100).toFixed(3)) + "%<br>")
+                            }
+                            //  for (var i = 0; i < response.chart["length"] ; i++){
+                            // $("#stock").append("<br><br>Change Week: " + response.chart[i].close)
+                            function test(labelValue) {
+                                return Math.abs(Number(labelValue)) >= 1.0e+12
+                                    ? Math.abs(Number(labelValue)) / 1.0e+12 + "T"
+                                    : Math.abs(Number(labelValue)) >= 1.0e+9
+                                        ? Math.abs(Number(labelValue)) / 1.0e+9 + "B"
+                                        : Math.abs(Number(labelValue)) >= 1.0e+6
+                                            ? Math.abs(Number(labelValue)) / 1.0e+6 + "M"
+                                            : Math.abs(Number(labelValue)) >= 1.0e+3
+                                                ? Math.abs(Number(labelValue)) / 1.0e+3 + "K"
+                                                : Math.abs(Number(labelValue)).toFixed(3);
+                            }
+                        })
+                    }
                 }
-            }
                 // }
                 collect();
             });
