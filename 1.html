@@ -47,7 +47,7 @@ margin: 20px
     <div class="row">
         <div class="col-sm-3">
             <div id=stock>
-                <div id="change"></div>
+                
             </div>
         </div>
 
@@ -78,40 +78,50 @@ margin: 20px
                             method: "GET",
                         }).then(function (response) {
                             console.log(response);
-                            $("#stock").append("<br><br>" + response.quote.symbol + "<br>")
-                            $("#stock").append("<br>" + response.quote.companyName + "<br>")
-
-                            $("#stock").append('Percent Change = ' + ((((response.quote.open / response.quote.close) - 1) * 100).toFixed(3)) + "%" + "<br>") // percent change Day
-                            $("#stock").append('Latest Change: ' + response.quote.latestTime + "<br>") //time of last quote
-                            $("#stock").append('Current Price = ' + (response.quote.close)) // close price
-
-                            $("#stock").append("<br>Day's volume: " + response.quote.latestVolume.toLocaleString(undefined,
-                                { minimumFractionDigits: 2 })
-                            ) //daily volume
-                            $("#stock").append("<br>Change Day: " + response.quote.change)
+                            var stockDiv = $("<div class='stc'>")
+                            var p = $("<p>").append("<br>" + response.quote.symbol + "<br>");
+                            var p1 = $("<p>").append( response.quote.companyName );
+                            var p2 = $("<p>").append('Percent Change = ' + ((((response.quote.open / response.quote.close) - 1) * 100).toFixed(3)) + "%" ) // percent change Day
+                            var p3 = $("<p>").append('Latest Change: ' + response.quote.latestTime ) //time of last quote
+                            var p4 = $("<p>").append("Day's volume: " + response.quote.latestVolume.toLocaleString(undefined,{ minimumFractionDigits: 2 })); //daily volume
+                            var p5 = $("<p>").append("Change Day: " + response.quote.change);
+                            var p6 = $("<p>").append('Current Price = ' + (response.quote.close)) // close price
 
 
-                            var market = response.quote.marketCap
-                            var marketTest = test(market)
-                            // $("#stock").append("<br>Market Cap: " + marketTest)
-                            // $("#stock").append("<br>Change Week: " + (response.quote.close - response.chart[18].close).toFixed(2))
-                            // $("#stock").append("<br>Change Month: " + (response.quote.close - response.chart[0].close).toFixed(2))
+                            var market = response.quote.marketCap;
+                            var marketTest = test(market);
+                           
+                            stockDiv.append(p , p1 , p2 , p3 , p4 , p5 , p6);
+                
+                            $("#stock").append(stockDiv);
+                           
+                            var p10 = $("<p>").append(("Range Price difference: " + (response.quote.high - response.quote.low).toFixed(2) )) //difference between high and low
+                            var p11 = $("<p>").append("Day's Range: " + response.quote.high.toFixed(2) + '-' + response.quote.low)
+                            var p12 = $("<p>").append("Market Cap: " + marketTest)
+                            var p13 = $("<p>").append("Change Week: " + (response.quote.close - response.chart[18].close).toFixed(2))
+                            var p14 = $("<p>").append("Change Month: " + (response.quote.close - response.chart[0].close).toFixed(2))
                             $("#add2").on("click", function (event) {
                                 if ($('input[name=1]:checked').val()) {
-                                    $("#stock").append(("<br>" + "Range Price difference: " + (response.quote.high - response.quote.low).toFixed(2) )) //difference between high and low
+                                    stockDiv.append(p10);
+                                    $("#stock").append(stockDiv);
                                 }
                                 if ($('input[name=2]:checked').val()) {
-                                    $("#stock").append("<br>Day's Range: " + response.quote.high.toFixed(2) + '-' + response.quote.low)
+                                    stockDiv.append(p11);
+                                    $("#stock").append(stockDiv);
                                 }
                                 if ($('input[name=3]:checked').val()) {
-                                    $("#stock").append("<br>Market Cap: " + marketTest)
+                                    stockDiv.append(p12);
+                                    $("#stock").append(stockDiv);
                                 }
                                 if ($('input[name=4]:checked').val()) {
-                                    $("#stock").append("<br>Change Week: " + (response.quote.close - response.chart[18].close).toFixed(2))
+                                    stockDiv.append(p13);
+                                    $("#stock").append(stockDiv);
                                 }
                                 if ($('input[name=5]:checked').val()) {
-                                    $("#stock").append("<br>Change Month: " + (response.quote.close - response.chart[0].close).toFixed(2))
+                                    stockDiv.append(p14);
+                                    $("#stock").append(stockDiv);
                                 }
+                               
                                 $('input[type=checkbox]').prop('checked',false);
                             })
                             // $("#remove").on("click", function (event) {
@@ -132,27 +142,31 @@ margin: 20px
                             //     }
                             //     $('input[type=checkbox]').prop('checked',false);
                             // })
+                            var p15 = $("<p>").append("▲ " + response.quote.change + " &nbsp; &nbsp;  " + ((((response.quote.latestPrice / response.quote.previousClose) - 1) * 100).toFixed(3)) + "%").css('color', 'green')
+                                
+                                var p16 = $("<p>").append("▼ " + response.quote.change + " &nbsp; &nbsp;  " + "-" + ((((response.quote.open / response.quote.close) - 1) * 100).toFixed(3)) + "%").css('color', 'red');
+                               
+                                
                             if (response.quote.change >= 0) {
-                                $("#change").append("▲ " + response.quote.change + " &nbsp; &nbsp;").css('color', 'green')
-                                $("#change").append(((((response.quote.latestPrice / response.quote.previousClose) - 1) * 100).toFixed(3)) + "%")
+                                stockDiv.append(p15)
+                              
 
                             } else {
 
-                                $("#change").append("▼ " + response.quote.change + " &nbsp; &nbsp;").css('color', 'red')
-                                $("#change").append("-" + ((((response.quote.open / response.quote.close) - 1) * 100).toFixed(3)) + "%<br>")
+                                stockDiv.append(p16)
+                        
                             }
-                            //  for (var i = 0; i < response.chart["length"] ; i++){
-                            // $("#stock").append("<br><br>Change Week: " + response.chart[i].close)
+                            
                             function test(labelValue) {
                                 return Math.abs(Number(labelValue)) >= 1.0e+12
-                                    ? Math.abs(Number(labelValue)) / 1.0e+12 + "T"
-                                    : Math.abs(Number(labelValue)) >= 1.0e+9
-                                        ? Math.abs(Number(labelValue)) / 1.0e+9 + "B"
-                                        : Math.abs(Number(labelValue)) >= 1.0e+6
-                                            ? Math.abs(Number(labelValue)) / 1.0e+6 + "M"
-                                            : Math.abs(Number(labelValue)) >= 1.0e+3
-                                                ? Math.abs(Number(labelValue)) / 1.0e+3 + "K"
-                                                : Math.abs(Number(labelValue)).toFixed(3);
+                             ? Math.abs(Number(labelValue)) / 1.0e+12 + "T"
+                             : Math.abs(Number(labelValue)) >= 1.0e+9
+                             ? Math.abs(Number(labelValue)) / 1.0e+9 + "B"
+                             : Math.abs(Number(labelValue)) >= 1.0e+6
+                             ? Math.abs(Number(labelValue)) / 1.0e+6 + "M"
+                             : Math.abs(Number(labelValue)) >= 1.0e+3
+                             ? Math.abs(Number(labelValue)) / 1.0e+3 + "K"
+                             : Math.abs(Number(labelValue)).toFixed(3);
                             }
                         })
                     }
